@@ -1,0 +1,23 @@
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server"
+
+export const GET = auth(async function GET(request) {
+    if(!request.auth){
+        return NextResponse.json({error: "Usuário não autentificado!"}, {status: 401})
+    }
+    try {
+        const donates = await prisma.donation.findMany({
+            where: {
+                userId: request.auth.user?.id,
+                status: "PAID"
+            },
+            orderBy:{
+                createdAt: "desc"
+            }
+        })
+        return NextResponse.json({ data: donates})
+    } catch (err) {
+        return NextResponse.json({error: "Falha ao Buscar Donaites!"}, {status: 400})
+    }
+})

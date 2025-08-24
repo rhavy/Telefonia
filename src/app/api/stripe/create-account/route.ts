@@ -1,0 +1,54 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { stripe } from "@/lib/stripe";
+import { NextResponse } from "next/server";
+
+export const POST = auth(async function POST(request) {
+  if (!request.auth) {
+    return NextResponse.json(
+      { error: "Usuário não autenticado!" },
+      { status: 401 }
+    );
+  }
+
+  try {
+    // Criar conta Stripe Express
+    const account = await stripe.accounts.create({
+      type: "express",
+    });
+
+    // Verificação de criação
+    if (!account.id) {
+      return NextResponse.json(
+        { error: "Falha ao criar conta de pagamento!" },
+        { status: 400 }
+      );
+    }
+
+    // Salvar ID da conta no banco
+    await prisma.user.update({
+      where: {
+        id: request.auth.user.id,
+      },
+      data: {
+        connectedStripeAccountId: account.id,
+      },
+    });
+
+    // Criar link de onboarding
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: `${process.env.HOST_URL!}/dashboard`,
+      return_url: `${process.env.HOST_URL!}/dashboard`,
+      type: "account_onboarding",
+    });
+
+    return NextResponse.json({ url: accountLink.url }, { status: 200 });
+  } catch (err) {
+    console.error("Erro Stripe:", err);
+    return NextResponse.json(
+      { error: "Falha ao criar link de configuração!" },
+      { status: 400 }
+    );
+  }
+});

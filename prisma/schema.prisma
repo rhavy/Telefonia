@@ -1,0 +1,209 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  emailVerified Boolean    @default(false)
+  image         String?
+  banner        String?
+  perfil        Perfil[]
+  telefones     Telefone[]
+  contratos     Contrato[]
+  endereco      Endereco[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  role          String?    @default("USER")
+  ativo         Boolean    @default(true)
+  admin         Administrador[]
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Perfil {
+  id         String    @id @default(cuid())
+  cpf        String?   @unique
+  genero     String?   @db.Text
+  nascimento DateTime?
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@map("perfil")
+}
+
+model Endereco {
+  id          String  @id @default(uuid())
+  cep         String  @db.Text
+  logradouro  String  @db.Text
+  numero      String  @db.Text
+  complemento String? @db.Text
+  bairro      String  @db.Text
+  cidade      String  @db.Text
+  estado      String  @db.Text
+  pais        String  @db.Text
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+  ativo       Boolean @default(true)
+}
+
+model Telefone {
+  id     String       @id @default(uuid())
+  numero String       @db.Text
+  tipo   TipoTelefone
+  userId String
+  user   User         @relation(fields: [userId], references: [id])
+  ativo  Boolean      @default(true)
+}
+
+model VerificationCode {
+  phone     String   @id
+  code      String
+  createdAt DateTime @default(now())
+}
+
+
+model Plano {
+  id          String           @id @default(uuid())
+  nome        String           @unique
+  descricao   String           @db.Text
+  precoMensal Int
+  precoAnual  Int
+  desconto    Int?
+  internet    String?
+  atendimento String?
+  chamadas    String?
+  seguranca   String?
+  suporte     String?
+  contratos   Contrato[]
+  beneficios  BeneficioPlano[]
+  adminId     String
+  admin       Administrador    @relation(fields: [adminId], references: [id])
+  ativo       Boolean          @default(true)
+}
+
+model BeneficioPlano {
+  id        String  @id @default(uuid())
+  descricao String  @db.Text
+  planoId   String
+  plano     Plano   @relation(fields: [planoId], references: [id])
+  ativo     Boolean @default(true)
+}
+
+model Contrato {
+  id      String       @id @default(uuid())
+  userId  String
+  planoId String
+  tipo    TipoContrato
+  inicio  DateTime
+  fim     DateTime?
+  ativo   Boolean      @default(true)
+  user    User         @relation(fields: [userId], references: [id])
+  plano   Plano        @relation(fields: [planoId], references: [id])
+  faturas Fatura[]
+}
+
+model Fatura {
+  id         String     @id @default(uuid())
+  contratoId String
+  valor      Int
+  vencimento DateTime
+  pago       Boolean    @default(false)
+  pagamento  Pagamento?
+  contrato   Contrato   @relation(fields: [contratoId], references: [id])
+}
+
+model Pagamento {
+  id            String          @id @default(uuid())
+  faturaId      String          @unique
+  dataPagamento DateTime
+  metodo        MetodoPagamento
+  fatura        Fatura          @relation(fields: [faturaId], references: [id])
+}
+
+enum TipoContrato {
+  MENSAL
+  ANUAL
+}
+
+enum TipoTelefone {
+  CELULAR
+  FIXO
+  WHATSAPP
+}
+
+enum MetodoPagamento {
+  CARTAO
+  BOLETO
+  PIX
+}
+
+model Administrador {
+  id        String      @id @default(uuid())
+  userId    String
+  planoId   String
+  criadoEm  DateTime    @default(now())
+  ativo     Boolean     @default(false)
+  roleNivel Int         @default(1)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admin     Plano[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?  @db.Text
+  userAgent String?  @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String    @db.Text
+  value      String    @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
