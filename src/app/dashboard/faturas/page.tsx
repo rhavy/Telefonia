@@ -1,8 +1,8 @@
 import Footer from "@/components/template/footer";
-import LitaFAtura from "./_comonents/listaFatura";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import ListasFatura from "./_components/listaFatura";
 
 export default async function FaturasPage() {
   const session = await auth.api.getSession({
@@ -27,7 +27,7 @@ export default async function FaturasPage() {
           </div>
 
           {/* Lista de faturas */}
-            <LitaFAtura/>
+            <ListasFatura/>
         </div>
       </main>
 

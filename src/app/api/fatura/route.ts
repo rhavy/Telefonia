@@ -18,7 +18,7 @@ export async function GET() {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Usuário não autenticado" }, { status: 401 });
+      return NextResponse.json({ ok: false, error: "Usuário não autenticado" }, { status: 401 });
     }
 
     const contrato = await prisma.contrato.findFirst({
@@ -26,7 +26,7 @@ export async function GET() {
     });
 
     if (!contrato) {
-      return NextResponse.json({ error: "Nenhum contrato encontrado" }, { status: 404 });
+      return NextResponse.json({ ok: false, error: "Nenhum contrato encontrado" }, { status: 404 });
     }
 
     const faturas= await prisma.fatura.findMany({
@@ -34,9 +34,9 @@ export async function GET() {
       orderBy: { vencimento: "asc" },
     });
 
-    return NextResponse.json(faturas);
+    return NextResponse.json({ ok: true, data: faturas });
   } catch (error) {
     console.error("Erro ao buscar faturas:", error);
-    return NextResponse.json({ error: "Erro interno ao buscar faturas" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: "Erro interno ao buscar faturas" }, { status: 500 });
   }
 }
