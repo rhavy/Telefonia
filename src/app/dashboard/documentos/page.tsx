@@ -1,31 +1,97 @@
 "use client";
 
+import { useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import Footer from "@/components/template/footer";
+import DocumentoCard, { DocumentoType } from "./_components/DocumentoCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, CheckCircle2, Clock, XCircle } from "lucide-react";
-import { useState } from "react";
-import Footer from "@/components/template/footer";
-
-type Documento = {
-  id: number;
-  nome: string;
-  status: "pendente" | "aprovado" | "rejeitado";
-  url?: string;
-};
+import { Upload, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function DocumentosPage() {
-  const [documentos, setDocumentos] = useState<Documento[]>([
-    { id: 1, nome: "RG - Frente", status: "aprovado", url: "/docs/rg_frente.pdf" },
-    { id: 2, nome: "RG - Verso", status: "pendente" },
-    { id: 3, nome: "Comprovante de Endereço", status: "rejeitado" },
-  ]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const tiposDocumentos = [
+    { id: "RG", nome: "RG/CNH" },
+    { id: "CPF", nome: "CPF" },
+    { id: "RESIDENCIA", nome: "Comprovante de Residência" },
+  ];
+
+  const { data: documentos = [], isLoading, error } = useQuery<DocumentoType[]>({
+    queryKey: ["documentos"],
+    queryFn: async () => {
+      const res = await fetch("/api/documentos");
+      const json = await res.json();
+      if (!json.ok) return [];
+      return json.data;
+    },
+    refetchInterval: 10000,
+  });
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length || !selectedDoc) return;
+
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("docId", selectedDoc);
+
+    try {
+      const res = await fetch("/api/documentos", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: "Erro desconhecido" }));
+        throw new Error(errorData.error || "Erro ao enviar documento");
+      }
+
+      await res.json();
+      toast.success(`✅ Documento ${selectedDoc} enviado com sucesso!`);
+      
+      // 🔄 Atualiza a lista de documentos
+      queryClient.invalidateQueries({ queryKey: ["documentos"] });
+    } catch (err: any) {
+      toast.error(err.message);
+      console.error("Erro ao processar arquivo:", err);
+    } finally {
+      setSelectedDoc(null);
+    }
+  };
+
+  const renderStatus = (status: string) => {
+    switch (status) {
+      case "PENDENTE":
+        return (
+          <div className="flex items-center gap-2 text-yellow-600 bg-yellow-100 px-3 py-2 rounded-lg text-sm font-medium">
+            <Clock className="h-4 w-4" /> Aguardando aprovação
+          </div>
+        );
+      case "APROVADO":
+        return (
+          <div className="flex items-center gap-2 text-green-600 bg-green-100 px-3 py-2 rounded-lg text-sm font-medium">
+            <CheckCircle2 className="h-4 w-4" /> Documento aprovado
+          </div>
+        );
+      case "REJEITADO":
+        return (
+          <div className="flex items-center gap-2 text-red-600 bg-red-100 px-3 py-2 rounded-lg text-sm font-medium">
+            <XCircle className="h-4 w-4" /> Documento recusado — envie novamente
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-gray-50">
-
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12 md:py-16">
-          {/* Título */}
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h1 className="text-4xl font-bold text-blue-700 tracking-tight mb-3">
               Meus Documentos
@@ -35,61 +101,90 @@ export default function DocumentosPage() {
             </p>
           </div>
 
-          {/* Lista de Documentos */}
-          <div className="grid gap-6 max-w-3xl mx-auto">
-            {documentos.map((doc) => (
-              <Card key={doc.id} className="shadow-sm hover:shadow-md transition rounded-2xl">
-                <CardHeader className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                    <FileText className="h-5 w-5 text-blue-600" />
-                    {doc.nome}
-                  </CardTitle>
-                  <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      doc.status === "aprovado"
-                        ? "bg-green-100 text-green-700"
-                        : doc.status === "pendente"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+          {isLoading && <p className="text-center text-gray-500">Carregando documentos...</p>}
+          {error && <p className="text-center text-red-500">Erro ao carregar documentos</p>}
+
+          {!isLoading && !error && (
+            <div className="space-y-6 mb-6">
+              {tiposDocumentos.map((tipo) => {
+                const documento = documentos.find((d) => d.tipo === tipo.id);
+
+                return (
+                  <Card
+                    key={tipo.id}
+                    className="shadow-sm hover:shadow-md transition rounded-2xl max-w-3xl mx-auto border border-gray-200"
                   >
-                    {doc.status === "aprovado" && (
-                      <CheckCircle2 className="inline-block mr-1 h-4 w-4" />
-                    )}
-                    {doc.status === "pendente" && (
-                      <Clock className="inline-block mr-1 h-4 w-4" />
-                    )}
-                    {doc.status === "rejeitado" && (
-                      <XCircle className="inline-block mr-1 h-4 w-4" />
-                    )}
-                    {doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                  </span>
-                </CardHeader>
+                    <CardHeader>
+                      <CardTitle className="text-lg font-semibold text-gray-800">
+                        {tipo.nome}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex justify-center">
+                      {!documento ? (
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedDoc(tipo.id);
+                            fileInputRef.current?.click();
+                          }}
+                        >
+                          <Upload className="h-4 w-4 mr-2" /> Enviar Documento
+                        </Button>
+                      ) : (
+                        <div className="w-full flex flex-col items-center gap-3">
+                          {renderStatus(documento.status)}
 
-                <CardContent className="flex justify-between items-center">
-                  {doc.url ? (
-                    <a
-                      href={doc.url}
-                      download
-                      className="text-sm text-blue-600 hover:underline"
-                    >
-                      Baixar Documento
-                    </a>
-                  ) : (
-                    <p className="text-sm text-gray-500">Nenhum arquivo enviado</p>
-                  )}
+                          {documento.status === "PENDENTE" && (
+                            <p className="text-sm text-gray-500">
+                              Você já enviou este documento. Ele está em análise e aguarda aprovação.
+                            </p>
+                          )}
 
-                  <Button variant="outline" size="sm">
-                    <Upload className="h-4 w-4 mr-2" />
-                    {doc.url ? "Reenviar" : "Enviar"}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                          {documento.status === "REJEITADO" && (
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedDoc(tipo.id);
+                                fileInputRef.current?.click();
+                              }}
+                            >
+                              <Upload className="h-4 w-4 mr-2" /> Reenviar Documento
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          {!isLoading && !error && documentos.length > 0 && (
+            <div className="grid gap-6 max-w-3xl mx-auto">
+              {documentos
+                .filter((doc) => doc.status === "APROVADO")
+                .map((doc) => (
+                  <DocumentoCard
+                    key={doc.id}
+                    doc={doc}
+                    selectedDoc={selectedDoc}
+                    setSelectedDoc={setSelectedDoc}
+                    fileInputRef={fileInputRef}
+                  />
+                ))}
+            </div>
+          )}
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*,application/pdf"
+          />
         </div>
       </main>
-
       <Footer />
     </div>
   );

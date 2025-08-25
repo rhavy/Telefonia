@@ -10,11 +10,17 @@ export default function ListaFatura() {
   const [faturaAberta, setFaturaAberta] = useState<string | null>(null);
   const [abaAtiva, setAbaAtiva] = useState<"boleto" | "pix">("boleto");
 
-  const { data: faturas = [], isLoading, error } = useQuery<Fatura[]>({
-    queryKey: ["fatura"],
-    queryFn: () => fetcher<Fatura[]>("/api/fatura"),
+  const { data: documentos = [], isLoading, error } = useQuery<DocumentoType[]>({
+    queryKey: ["documentos"],
+    queryFn: async () => {
+      const res = await fetch("/api/documentos");
+      const data = await res.json();
+      // Caso a API retorne { documentos: [...] }
+      return data?.documentos ?? data ?? [];
+    },
     refetchInterval: 10000,
   });
+
 
   if (isLoading) return <p className="text-center text-gray-500">Carregando faturas...</p>;
   if (error) {

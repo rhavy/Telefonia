@@ -3,14 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
-type Fatura = {
-  id: string;
-  contratoId: string;
-  valor: number;
-  vencimento: string | Date;
-  pago: boolean;
-};
-
 export async function GET() {
   try {
     const session = await auth.api.getSession({

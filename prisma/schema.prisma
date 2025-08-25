@@ -24,6 +24,7 @@ model User {
   telefones     Telefone[]
   contratos     Contrato[]
   endereco      Endereco[]
+  documento     Documento[]
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   role          String?    @default("USER")
@@ -38,12 +39,18 @@ model User {
 model Perfil {
   id         String    @id @default(cuid())
   cpf        String?   @unique
-  genero     String?   @db.Text
+  genero     Genero
   nascimento DateTime?
   userId     String
   user       User      @relation(fields: [userId], references: [id])
 
   @@map("perfil")
+}
+
+enum Genero {
+  MASCULINO
+  FEMININO
+  OUTROS
 }
 
 model Endereco {
@@ -206,4 +213,27 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Documento {
+  id     String @id @default(cuid())
+  nome   String
+  url    String
+  status Status
+  tipo   TipoDocumento
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([tipo, userId]) // garante um documento por tipo por usuário
+}
+
+enum Status {
+PENDENTE
+APROVADO
+REJEITADO
+}
+enum TipoDocumento {
+RG
+CPF
+RESIDENCIA
 }
