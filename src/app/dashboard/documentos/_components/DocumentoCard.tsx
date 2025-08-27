@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Upload, FileText, CheckCircle2, Clock, XCircle, Image as ImageIcon } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { FileText, CheckCircle2, Clock, XCircle, Image as ImageIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useFaturaTraducoes } from "@/utils/translateClient";
 
 export type DocumentoType = {
   id: string;
@@ -45,7 +44,7 @@ export default function DocumentoCard({ doc, selectedDoc, setSelectedDoc, fileIn
     window.addEventListener("file-selected", handleFileSelected as EventListener);
     return () => window.removeEventListener("file-selected", handleFileSelected as EventListener);
   }, [selectedDoc, doc.id]);
-
+  const { baixarFatura, baixarFaturaErro, } = useFaturaTraducoes();
 
   return (
     <Card className="shadow-sm hover:shadow-md transition rounded-2xl">
@@ -74,10 +73,10 @@ export default function DocumentoCard({ doc, selectedDoc, setSelectedDoc, fileIn
         <div className="flex justify-between items-center">
           {doc.url ? (
             <a href={doc.url} download className="text-sm text-blue-600 hover:underline">
-              Baixar Documento
+              {baixarFatura}
             </a>
           ) : (
-            <p className="text-sm text-gray-500">Nenhum arquivo enviado</p>
+            <p className="text-sm text-gray-500">{baixarFaturaErro}</p>
           )}
         </div>
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, LayoutDashboard, LogOut, Phone, User } from "lucide-react";
 import MobileMenu from "./menu-mobile";
 import { authClient } from "@/lib/auth-client";
+import { useHeaderAdminTraducoes } from "@/utils/translateClient";
 
 export default function Header() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function Header() {
       },
     });
   }
+
+  const { dashboardPage, perfilPage, faturasPage, configPage, assiPage, docPage } = useHeaderAdminTraducoes();
 
   return (
 
@@ -39,15 +42,7 @@ export default function Header() {
                 className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
               >
                 <LayoutDashboard size={18} />
-                Dashboard
-              </Link>
-
-              <Link
-                href="/dashboard/perfil"
-                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
-              >
-                <User size={18} />
-                Meu perfil
+                {dashboardPage}
               </Link>
 
               <Link
@@ -55,7 +50,39 @@ export default function Header() {
                 className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
               >
                 <FileText size={18} />
-                Faturas
+                {faturasPage}
+              </Link>
+
+              <Link
+                href="/dashboard/assinatura"
+                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
+              >
+                <FileText size={18} />
+                {assiPage}
+              </Link>
+
+              <Link
+                href="/dashboard/documentos"
+                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
+              >
+                <FileText size={18} />
+                {docPage}
+              </Link>
+
+              <Link
+                href="/dashboard/perfil"
+                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
+              >
+                <User size={18} />
+                {perfilPage}
+              </Link>
+
+              <Link
+                href="/dashboard/configuracoes"
+                className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
+              >
+                <User size={18} />
+                {configPage}
               </Link>
 
               <Button

@@ -3,3 +3,12 @@ export type ResponseData<T> = {
   error?: string;
   data?: T;
 };
+
+export type PerfilProps = {
+  name: string;
+  cpf: string;
+  nascimento: string;
+  genero: string;
+};
+
+

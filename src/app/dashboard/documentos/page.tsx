@@ -8,16 +8,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useDocumentosTraducoes } from "@/utils/translateClient";
 
 export default function DocumentosPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
   const queryClient = useQueryClient();
-
+  const { 
+    titulo, subTitulo, isLoadingDoc, erroDoc, erroReDoc, erroReDescDoc, sussecTitleDoc, sussecMessDoc, erroProcDoc, statusAguardandoDoc, statusDocumentacaoDoc, 
+    statusDocumentacaoRecusadaDoc, tiposDocumentosRecusadaDoc, buttonEnviarDocumentacaoDoc, buttonReEnviarDocumentacaoDoc, nessageEnviarDocumentacaoDoc } = useDocumentosTraducoes();
   const tiposDocumentos = [
     { id: "RG", nome: "RG/CNH" },
     { id: "CPF", nome: "CPF" },
-    { id: "RESIDENCIA", nome: "Comprovante de Residência" },
+    { id: "RESIDENCIA", nome: `${tiposDocumentosRecusadaDoc}` },
   ];
 
   const { data: documentos = [], isLoading, error } = useQuery<DocumentoType[]>({
@@ -46,18 +49,18 @@ export default function DocumentosPage() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: "Erro desconhecido" }));
-        throw new Error(errorData.error || "Erro ao enviar documento");
+        const errorData = await res.json().catch(() => ({ error: `${erroReDescDoc}` }));
+        throw new Error(errorData.error || `${erroReDoc}`);
       }
 
       await res.json();
-      toast.success(`✅ Documento ${selectedDoc} enviado com sucesso!`);
+      toast.success(`✅ ${sussecTitleDoc} ${selectedDoc} ${sussecMessDoc}`);
       
       // 🔄 Atualiza a lista de documentos
       queryClient.invalidateQueries({ queryKey: ["documentos"] });
     } catch (err: any) {
       toast.error(err.message);
-      console.error("Erro ao processar arquivo:", err);
+      console.error(`${erroProcDoc}`, err);
     } finally {
       setSelectedDoc(null);
     }
@@ -68,19 +71,19 @@ export default function DocumentosPage() {
       case "PENDENTE":
         return (
           <div className="flex items-center gap-2 text-yellow-600 bg-yellow-100 px-3 py-2 rounded-lg text-sm font-medium">
-            <Clock className="h-4 w-4" /> Aguardando aprovação
+            <Clock className="h-4 w-4" /> {statusAguardandoDoc}
           </div>
         );
       case "APROVADO":
         return (
           <div className="flex items-center gap-2 text-green-600 bg-green-100 px-3 py-2 rounded-lg text-sm font-medium">
-            <CheckCircle2 className="h-4 w-4" /> Documento aprovado
+            <CheckCircle2 className="h-4 w-4" /> {statusDocumentacaoDoc}
           </div>
         );
       case "REJEITADO":
         return (
           <div className="flex items-center gap-2 text-red-600 bg-red-100 px-3 py-2 rounded-lg text-sm font-medium">
-            <XCircle className="h-4 w-4" /> Documento recusado — envie novamente
+            <XCircle className="h-4 w-4" /> {statusDocumentacaoRecusadaDoc}
           </div>
         );
       default:
@@ -94,15 +97,15 @@ export default function DocumentosPage() {
         <div className="container mx-auto px-4 py-12 md:py-16">
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h1 className="text-4xl font-bold text-blue-700 tracking-tight mb-3">
-              Meus Documentos
+              {titulo}
             </h1>
             <p className="text-gray-600 text-lg">
-              Gerencie seus documentos enviados para validação.
+              {subTitulo}
             </p>
           </div>
 
-          {isLoading && <p className="text-center text-gray-500">Carregando documentos...</p>}
-          {error && <p className="text-center text-red-500">Erro ao carregar documentos</p>}
+          {isLoading && <p className="text-center text-gray-500">{isLoadingDoc}</p>}
+          {error && <p className="text-center text-red-500">{erroDoc}</p>}
 
           {!isLoading && !error && (
             <div className="space-y-6 mb-6">
@@ -128,7 +131,7 @@ export default function DocumentosPage() {
                             fileInputRef.current?.click();
                           }}
                         >
-                          <Upload className="h-4 w-4 mr-2" /> Enviar Documento
+                          <Upload className="h-4 w-4 mr-2" /> {buttonEnviarDocumentacaoDoc}
                         </Button>
                       ) : (
                         <div className="w-full flex flex-col items-center gap-3">
@@ -136,7 +139,7 @@ export default function DocumentosPage() {
 
                           {documento.status === "PENDENTE" && (
                             <p className="text-sm text-gray-500">
-                              Você já enviou este documento. Ele está em análise e aguarda aprovação.
+                              {nessageEnviarDocumentacaoDoc}
                             </p>
                           )}
 
@@ -148,7 +151,7 @@ export default function DocumentosPage() {
                                 fileInputRef.current?.click();
                               }}
                             >
-                              <Upload className="h-4 w-4 mr-2" /> Reenviar Documento
+                              <Upload className="h-4 w-4 mr-2" /> {buttonReEnviarDocumentacaoDoc}
                             </Button>
                           )}
                         </div>

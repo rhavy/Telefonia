@@ -14,24 +14,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String?    @unique
-  emailVerified Boolean    @default(false)
-  image         String?
-  banner        String?
-  perfil        Perfil[]
-  telefones     Telefone[]
-  contratos     Contrato[]
-  endereco      Endereco[]
-  documento     Documento[]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  role          String?    @default("USER")
-  ativo         Boolean    @default(true)
-  admin         Administrador[]
-  sessions      Session[]
-  accounts      Account[]
+  id              String     @id @default(cuid())
+  name            String?
+  email           String?    @unique
+  emailVerified   Boolean    @default(false)
+  image           String?
+  banner          String?
+  perfil          Perfil[]
+  telefones       Telefone[]
+  contratos       Contrato[]
+  endereco        Endereco[]
+  documento       Documento[]
+  preferencia     Preferencia[]
+  HistoricoSenha  HistoricoSenha[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  role            String?    @default("USER")
+  ativo           Boolean    @default(true)
+  admin           Administrador[]
+  sessions        Session[]
+  accounts        Account[]
 
   @@map("user")
 }
@@ -132,6 +134,8 @@ model Fatura {
   pago       Boolean    @default(false)
   pagamento  Pagamento?
   contrato   Contrato   @relation(fields: [contratoId], references: [id])
+  codigoBarras String?    @db.Text
+  chavePix      String?    @db.Text
 }
 
 model Pagamento {
@@ -228,12 +232,38 @@ model Documento {
 }
 
 enum Status {
-PENDENTE
-APROVADO
-REJEITADO
+  PENDENTE
+  APROVADO
+  REJEITADO
 }
 enum TipoDocumento {
-RG
-CPF
-RESIDENCIA
+  RG
+  CPF
+  RESIDENCIA
+}
+model Preferencia {
+  id        String  @id @default(cuid())
+  tipo      TipoPreferencia  
+  valor     String  
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Histórico de alterações de senha
+model HistoricoSenha {
+  id        String   @id @default(cuid())
+  userId    String
+  hash      String
+  criadoEm  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum TipoPreferencia {
+  TEMA
+  IDIOMA
+  NOTIFICACAOEMAIL
+  NOTIFICACAOSMS
 }
