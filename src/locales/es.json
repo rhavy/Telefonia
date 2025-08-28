@@ -112,6 +112,24 @@
     "modoEscuroConfiguracao": "Activar modo oscuro",
     "excluirContaConfiguracao": "Eliminar cuenta",
     "alterarSenhaConfiguracao": "Cambiar contraseña"
+  },
+  "assinatura": {
+    "titulo": "Mi Suscripción",
+    "subTitulo": "Administra tu plan de suscripción, método de pago y mejoras.",
+    "isLoadingAssinatura": "Cargando...",
+    "planoAtualAssinatura": "Plan Actual",
+    "planoAssinatura": "Plan",
+    "precoAssinatura": "Precio",
+    "statusAssinatura": "Estado",
+    "renovacaoAssinatura": "Renovación",
+    "beneficiosAssinatura": "Beneficios",
+    "valorCalculoLocalAssinatura": "es-ES",
+    "valorCalculoAssinatura": "EUR",
+    "assinarAssinatura": "Suscribirse",
+    "correteMesAssinatura": "Mes",
+    "correteAnoAssinatura": "Año",
+    "statusAtivoAssinatura": "Activo",
+    "statusInativoAssinatura": "Inactivo"
   }
 
 }

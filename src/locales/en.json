@@ -112,6 +112,25 @@
     "modoEscuroConfiguracao": "Enable dark mode",
     "excluirContaConfiguracao": "Delete Account",
     "alterarSenhaConfiguracao": "Change Password"
+  },
+  "assinatura": {
+    "titulo": "My Subscription",
+    "subTitulo": "Manage your subscription plan, payment method, and upgrades.",
+    "isLoadingAssinatura": "Loading...",
+    "planoAtualAssinatura": "Current Plan",
+    "planoAssinatura": "Plan",
+    "precoAssinatura": "Price",
+    "statusAssinatura": "Status",
+    "renovacaoAssinatura": "Renewal",
+    "beneficiosAssinatura": "Benefits",
+    "valorCalculoLocalAssinatura": "en-US",
+    "valorCalculoAssinatura": "USD",
+    "assinarAssinatura": "Subscribe",
+    "correteMesAssinatura": "Month",
+    "correteAnoAssinatura": "Year",
+    "statusAtivoAssinatura": "Active",
+    "statusInativoAssinatura": "Inactive"
   }
+
 
 }

@@ -3,14 +3,21 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { FileText, LayoutDashboard, LogOut, Phone, User } from "lucide-react";
+import { CreditCard, FileText, LayoutDashboard, LogOut, Phone, Settings, User, Wifi } from "lucide-react";
 import MobileMenu from "./menu-mobile";
 import { authClient } from "@/lib/auth-client";
 import { useHeaderAdminTraducoes } from "@/utils/translateClient";
+import { useQuery } from "@tanstack/react-query";
+import { fetcher } from "@/lib/fetcher";
+import { PerfilProps } from "@/types/api";
 
 export default function Header() {
   const router = useRouter();
-
+  const { data: perfil } = useQuery({
+        queryKey: ["perfil"],
+        queryFn: () => fetcher<PerfilProps>("/api/perfil"),
+        refetchInterval: 10000,
+      });
   async function handleSignout() {
     await authClient.signOut({
       fetchOptions: {
@@ -46,19 +53,19 @@ export default function Header() {
               </Link>
 
               <Link
-                href="/dashboard/faturas"
+                href={`/dashboard/assinatura/`}
                 className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
               >
-                <FileText size={18} />
-                {faturasPage}
+                <Wifi size={18} />
+                {assiPage}
               </Link>
 
               <Link
-                href="/dashboard/assinatura"
+                href="/dashboard/faturas"
                 className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
               >
-                <FileText size={18} />
-                {assiPage}
+                <CreditCard size={18} />
+                {faturasPage}
               </Link>
 
               <Link
@@ -81,7 +88,7 @@ export default function Header() {
                 href="/dashboard/configuracoes"
                 className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-blue-600"
               >
-                <User size={18} />
+                <Settings size={18} />
                 {configPage}
               </Link>
 

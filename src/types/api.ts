@@ -5,6 +5,7 @@ export type ResponseData<T> = {
 };
 
 export type PerfilProps = {
+  id: string;
   name: string;
   cpf: string;
   nascimento: string;

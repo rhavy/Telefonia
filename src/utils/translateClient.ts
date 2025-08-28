@@ -1,4 +1,4 @@
-import { TraducoesConfiguracao, TraducoesDocumentos, TraducoesFatura, TraducoesFooter, TraducoesHeader, TraducoesHeaderAdmin } from './../types/traducao';
+import { TraducoesAssinatura, TraducoesConfiguracao, TraducoesDocumentos, TraducoesFatura, TraducoesFooter, TraducoesHeader, TraducoesHeaderAdmin } from './../types/traducao';
 // lib/hooks/useDashboardTraducoes.ts
 "use client";
 
@@ -126,6 +126,21 @@ export function useConfiguracaoTraducoes() {
   
     const traducoes: TraducoesConfiguracao = { pt, en, es };
       return traducoes[idioma].configuracao;
+    
+
+}
+export function useAssinaturaTraducoes() {
+
+  const { data: preferencias } = useQuery<PreferenciasExportProps[]>({
+      queryKey: ["config-perfil"],
+      queryFn: () => fetcher<PreferenciasExportProps[]>("/api/config/perfil"),
+    });
+  
+    const idiomaPref = preferencias?.find((p) => p.tipo === "IDIOMA");
+    const idioma = idiomaPref?.valor ?? "pt";
+  
+    const traducoes: TraducoesAssinatura = { pt, en, es };
+      return traducoes[idioma].assinatura;
     
 
 }

@@ -18,8 +18,7 @@ export default function DashboardPage() {
       queryFn: () => fetcher<PerfilProps>("/api/perfil"),
       refetchInterval: 10000,
     });
-  if(perfil?.name == ''){
-    
+  if(!perfil?.id){
   }
 
   return (
@@ -63,13 +62,13 @@ export default function DashboardPage() {
             <Card className="shadow-sm hover:shadow-md transition rounded-2xl">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-semibold">{widgetAssi}</CardTitle>
-                <Wifi className="h-6 w-6 text-blue-600" />
+                <Wifi className="h-6 w-6 text-blue-600" /> 
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600">
                   {assitext}
                 </p>
-                <Link href="/dashboard/assinatura/" className="text-blue-600 font-medium text-sm mt-3 inline-block">
+                <Link href={`/dashboard/assinatura/`} className="text-blue-600 font-medium text-sm mt-3 inline-block">
                   {assiLink}
                 </Link>
               </CardContent>

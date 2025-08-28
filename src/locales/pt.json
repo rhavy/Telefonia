@@ -113,6 +113,23 @@
       "modoEscuroConfiguracao": "Ativar modo escuro",
       "excluirContaConfiguracao": "Excluir Conta",
       "alterarSenhaConfiguracao": "Alterar Senha"
+    },
+    "assinatura":{
+      "titulo": "Minha Assinatura",
+      "subTitulo": "Gerencie seu plano de assinatura, forma de pagamento e upgrades.",
+      "isLoadingAssinatura": "Carregando...",
+      "planoAtualAssinatura": "Plano Atual",
+      "planoAssinatura": "Plano",
+      "precoAssinatura": "Preço",
+      "statusAssinatura": "Status",
+      "renovacaoAssinatura": "Renovação",
+      "beneficiosAssinatura": "Benefícios",
+      "valorCalculoLocalAssinatura": "pt-BR",
+      "valorCalculoAssinatura": "BRL",
+      "assinarAssinatura": "Assinar",
+      "correteMesAssinatura": "Mês",
+      "correteAnoAssinatura": "Ano",
+      "statusAtivoAssinatura": "Ativo",
+      "statusInativoAssinatura": "Inativo"
     }
-
 }

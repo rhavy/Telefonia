@@ -151,3 +151,25 @@ export type TraducoesConfiguracao = {
     };
   };
 };
+export type TraducoesAssinatura = {
+ [key: string]: {
+    assinatura: {
+      titulo: string;  
+      subTitulo: string; 
+      isLoadingAssinatura: string;  
+      planoAtualAssinatura: string;  
+      planoAssinatura: string;  
+      precoAssinatura: string;  
+      statusAssinatura: string;  
+      renovacaoAssinatura: string;  
+      beneficiosAssinatura: string;  
+      valorCalculoLocalAssinatura: string;  
+      valorCalculoAssinatura: string;  
+      assinarAssinatura: string;  
+      correteMesAssinatura: string;  
+      correteAnoAssinatura: string;  
+      statusAtivoAssinatura: string;  
+      statusInativoAssinatura: string;  
+    };
+  };
+};
